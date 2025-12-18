@@ -1,6 +1,17 @@
-{gift_card_amount}
-{gift_card_code}
-{gift_card_expiration}
-{name}
+ 
+
+{shop_url}
+
+Dear {name},
+
+{gift_card_sender} has given you a gift card that is worth {gift_card_amount}
+
+Gift Card Code:  {gift_card_code}
+
+Use before:  {gift_card_expiration}
+
 {gift_card_message}
-{gift_card_sender}
+
+Redeem now on [{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop-project.org/)

@@ -1,6 +1,17 @@
-{gift_card_amount}
-{gift_card_code}
-{gift_card_expiration}
-{name}
+ 
+
+{shop_url}
+
+Salve {name},
+
+{gift_card_sender} ti ha regalato una carta regalo del valore di {gift_card_amount}
+
+Codice Gift Card:  {gift_card_code}
+
+Utilizzabile fino al:  {gift_card_expiration}
+
 {gift_card_message}
-{gift_card_sender}
+
+Utilizzala ora su [{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop-project.org/)

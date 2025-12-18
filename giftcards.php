@@ -368,9 +368,7 @@ class GiftCards extends Module
     {
         if (!Validate::isLoadedObject($order = new Order($params['id_order']))
             || !($params['newOrderStatus'] instanceof OrderState)
-            || 1 != $params['newOrderStatus']->paid
             || Configuration::getGlobalValue(GiftCardConfiguration::GIFT_CARD_TO_SEND_ORDER_STATE) != $params['newOrderStatus']->id
-            || !Validate::isLoadedObject($customer = new Customer($order->id_customer))
             || !($giftCardProducts = $this->getGiftCardProducts($order))
         ) {
             return;
@@ -448,6 +446,16 @@ class GiftCards extends Module
                     if (count($giftCardProducts) === count($order->getProducts())) {
                         $order->setCurrentState(Configuration::get(GiftCardConfiguration::GIFT_CARD_SENT_ORDER_STATE));
                     }
+                    $entity->setMailSent(true);
+                    $entityManager->flush();
+                }
+            } elseif (!$entity->getMailSent()) {
+                if ($this->sendEmail($order->id_lang, new CartRule($entity->getIdCartRule()), $data, (int)$order->id_shop)) {
+                    if (count($giftCardProducts) === count($order->getProducts())) {
+                        $order->setCurrentState(Configuration::get(GiftCardConfiguration::GIFT_CARD_SENT_ORDER_STATE));
+                    }
+                    /** @var EntityManagerInterface $entityManager */
+                    $entityManager = $this->get('doctrine.orm.default_entity_manager');
                     $entity->setMailSent(true);
                     $entityManager->flush();
                 }
