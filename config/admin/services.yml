@@ -1,0 +1,56 @@
+imports:
+  - { resource: ../common.yml }
+
+services:
+  _defaults:
+    public: true
+
+  # Controller
+  cdigruttola\GiftCard\Controller\GiftCardController:
+    public: true
+    class: cdigruttola\GiftCard\Controller\GiftCardController
+
+  #creation/edition form
+  cdigruttola.gift_card.form.identifiable_object.builder.product_form_builder:
+    class: 'PrestaShop\PrestaShop\Core\Form\IdentifiableObject\Builder\FormBuilder'
+    factory: 'prestashop.core.form.builder.form_builder_factory:create'
+    arguments:
+      - 'cdigruttola\GiftCard\Form\ProductGiftCardType'
+      - '@cdigruttola.gift_card.form.identifiable_object.data_provider.product_data_provider'
+
+  cdigruttola.gift_card.form.gift_card_type:
+    class: 'cdigruttola\GiftCard\Form\ProductGiftCardType'
+    parent: 'form.type.translatable.aware'
+    public: true
+    tags:
+      - { name: form.type }
+
+  cdigruttola.gift_card.form.identifiable_object.data_handler.product_form_data_handler:
+    class: 'cdigruttola\GiftCard\Form\DataHandler\ProductGiftCardFormDataHandler'
+    arguments:
+      - '@doctrine.orm.default_entity_manager'
+
+  cdigruttola.gift_card.configuration.provider.configuration_form_data_provider:
+    class: cdigruttola\GiftCard\Form\Provider\ConfigurationFormDataProvider
+    arguments:
+      - '@cdigruttola.gift_card.configuration.data.configuration'
+
+  cdigruttola\GiftCard\Form\ConfigurationFormType:
+    class: cdigruttola\GiftCard\Form\ConfigurationFormType
+    parent: 'form.type.translatable.aware'
+    public: true
+    arguments:
+      - '@=service("prestashop.adapter.data_provider.tax").getTaxRulesGroupChoices()'
+      - '@=service("prestashop.core.form.choice_provider.order_state_by_id").getChoices()'
+    tags:
+      - { name: form.type }
+
+  cdigruttola.gift_card.configuration.handler.configuration_form_data_handler:
+    class: 'PrestaShop\PrestaShop\Core\Form\Handler'
+    public: true
+    arguments:
+      - '@form.factory'
+      - '@prestashop.core.hook.dispatcher'
+      - '@cdigruttola.gift_card.configuration.provider.configuration_form_data_provider'
+      - 'cdigruttola\GiftCard\Form\ConfigurationFormType'
+      - 'GiftCardConfiguration'

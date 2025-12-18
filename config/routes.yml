@@ -1,0 +1,5 @@
+giftcard_config_controller:
+    path: /giftcards/configuration
+    methods: [GET, POST]
+    defaults:
+        _controller: 'cdigruttola\GiftCard\Controller\GiftCardController::index'

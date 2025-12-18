@@ -1,0 +1,6 @@
+{gift_card_amount}
+{gift_card_code}
+{gift_card_expiration}
+{name}
+{gift_card_message}
+{gift_card_sender}

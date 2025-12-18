@@ -1,0 +1,33 @@
+services:
+  _defaults:
+    public: true
+
+  cdigruttola.gift_card.module:
+    class: GiftCards
+    factory: [ 'Module', 'getInstanceByName' ]
+    public: false
+    arguments:
+      - 'giftcards'
+
+  cdigruttola.gift_card.configuration.data.configuration:
+    class: cdigruttola\GiftCard\Configuration\GiftCardConfiguration
+    arguments: [ '@prestashop.adapter.legacy.configuration' ]
+
+  cdigruttola.gift_card.repository.product_gift_card:
+    class: cdigruttola\GiftCard\Repository\ProductGiftCardRepository
+    public: true
+    factory: [ '@doctrine.orm.default_entity_manager', getRepository ]
+    arguments:
+      - cdigruttola\GiftCard\Entity\ProductGiftCard
+
+  cdigruttola.gift_card.form.identifiable_object.data_provider.product_data_provider:
+    class: 'cdigruttola\GiftCard\Form\Provider\ProductGiftCardFormDataProvider'
+    arguments:
+      - '@cdigruttola.gift_card.repository.product_gift_card'
+
+  cdigruttola.gift_card.repository.product_gift_card_order_detail:
+    class: cdigruttola\GiftCard\Repository\ProductGiftCardOrderDetailRepository
+    public: true
+    factory: [ '@doctrine.orm.default_entity_manager', getRepository ]
+    arguments:
+      - cdigruttola\GiftCard\Entity\ProductGiftCardOrderDetail
