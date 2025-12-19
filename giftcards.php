@@ -82,6 +82,7 @@ class GiftCards extends Module
             && $this->registerHook('actionProductFormDataProviderData')
             && $this->registerHook('actionAfterUpdateProductFormHandler')
             && $this->registerHook('actionOrderStatusPostUpdate')
+            && $this->registerHook('actionObjectCartRuleAddAfter')
             && $this->registerHook(ThemeCatalogInterface::LIST_MAIL_THEMES_HOOK)
         ) {
             $this->createTax();
@@ -406,27 +407,7 @@ class GiftCards extends Module
                     VALUES(' . (int)$cart_rule->id . ', ' . (int)$order->id_shop . ')');
                 }
 
-                Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'cart_rule_product_rule_group` (`id_cart_rule`, `quantity`)
-                    VALUES(' . (int)$cart_rule->id . ', 1)');
-                $id_product_rule_group = Db::getInstance()->Insert_ID();
-
-                Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'cart_rule_product_rule` (`id_product_rule_group`, `type`)
-						VALUES (' . (int)$id_product_rule_group . ', \'categories\')');
-                $id_product_rule = Db::getInstance()->Insert_ID();
-
-                $values = [];
-
-                $categories = Category::getCategories($this->context->language->id, true, false);
-                foreach ($categories as $category) {
-                    if (Configuration::getGlobalValue(GiftCardConfiguration::GIFT_CARD_CATEGORY) !== $category['id_category']) {
-                        $values[] = '(' . (int)$id_product_rule . ',' . (int)$category['id_category'] . ')';
-                    }
-                }
-
-                $values = array_unique($values);
-                if (count($values)) {
-                    Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'cart_rule_product_rule_value` (`id_product_rule`, `id_item`) VALUES ' . implode(',', $values));
-                }
+                $this->addCategoriesRestriction($cart_rule);
 
                 Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'cart_rule_combination` (`id_cart_rule_1`, `id_cart_rule_2`) (
                 SELECT id_cart_rule, ' . (int)$cart_rule->id . ' FROM `' . _DB_PREFIX_ . 'cart_rule` WHERE cart_rule_restriction = 1 )');
@@ -582,5 +563,42 @@ class GiftCards extends Module
             $giftCards[] = $product;
         }
         return $giftCards;
+    }
+
+    public function hookActionObjectCartRuleAddAfter($params) {
+        /** @var CartRule $cart_rule */
+        $cart_rule = $params['object'];
+        if (!$cart_rule->product_restriction) {
+            $this->addCategoriesRestriction($cart_rule);
+        }
+    }
+
+    /**
+     * @param CartRule $cart_rule
+     * @return void
+     */
+    public function addCategoriesRestriction(CartRule $cart_rule): void
+    {
+        Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'cart_rule_product_rule_group` (`id_cart_rule`, `quantity`)
+                    VALUES(' . (int)$cart_rule->id . ', 1)');
+        $id_product_rule_group = Db::getInstance()->Insert_ID();
+
+        Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'cart_rule_product_rule` (`id_product_rule_group`, `type`)
+						VALUES (' . (int)$id_product_rule_group . ', \'categories\')');
+        $id_product_rule = Db::getInstance()->Insert_ID();
+
+        $values = [];
+
+        $categories = Category::getCategories($this->context->language->id, true, false);
+        foreach ($categories as $category) {
+            if (Configuration::getGlobalValue(GiftCardConfiguration::GIFT_CARD_CATEGORY) !== $category['id_category']) {
+                $values[] = '(' . (int)$id_product_rule . ',' . (int)$category['id_category'] . ')';
+            }
+        }
+
+        $values = array_unique($values);
+        if (count($values)) {
+            Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'cart_rule_product_rule_value` (`id_product_rule`, `id_item`) VALUES ' . implode(',', $values));
+        }
     }
 }
