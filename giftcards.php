@@ -83,6 +83,7 @@ class GiftCards extends Module
             && $this->registerHook('actionAfterUpdateProductFormHandler')
             && $this->registerHook('actionOrderStatusPostUpdate')
             && $this->registerHook('actionObjectCartRuleAddAfter')
+            && $this->registerHook('actionPresentProduct')
             && $this->registerHook(ThemeCatalogInterface::LIST_MAIL_THEMES_HOOK)
         ) {
             $this->createTax();
@@ -571,6 +572,13 @@ class GiftCards extends Module
         if (!$cart_rule->product_restriction) {
             $this->addCategoriesRestriction($cart_rule);
         }
+    }
+
+    public function hookActionPresentProduct($params) {
+        $emailFieldId = (int) Configuration::getGlobalValue(GiftCardConfiguration::GIFT_CARD_EMAIL_EMAIL);
+        $this->context->smarty->assign([
+            'gift_card_email_field_id' => $emailFieldId,
+        ]);
     }
 
     /**
