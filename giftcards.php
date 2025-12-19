@@ -571,6 +571,8 @@ class GiftCards extends Module
         $cart_rule = $params['object'];
         if (!$cart_rule->product_restriction) {
             $this->addCategoriesRestriction($cart_rule);
+            $cart_rule->product_restriction = 1;
+            $cart_rule->save();
         }
     }
 
